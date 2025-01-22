@@ -1,6 +1,7 @@
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import data from '../data/data.json'
 import Octicons from '@expo/vector-icons/Octicons';
+import ButtomNew from "@/components/ButtomNew";
 
 export default function Index() {
   return (
@@ -12,29 +13,31 @@ export default function Index() {
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
+        ListFooterComponent={<View style={{height: 20}}/>}
         renderItem={({item}) => (
           <View style={styles.taskContainer}>
             {item.completed 
               ? <Octicons name="check-circle-fill" size={27} color="#9B87F5" style={{ marginRight: 15 }} /> 
               : <Octicons name="check-circle" size={27} color="#a3a3a4" style={{ marginRight: 15 }} />
             }
-            <Text style={{... styles.taskText, textDecorationLine: item.completed ? 'line-through' : 'none'}}>{item.title}</Text>
+            <Text style={{...styles.taskText, textDecorationLine: item.completed ? 'line-through' : 'none'}}>{item.title}</Text>
           </View>
         )}
       />
+      <ButtomNew buttomColor="#9B87F5" buttomSize={62}/>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingVertical: 20,
     paddingHorizontal: 23,
     width: '100%',
   },
   listContainer: {
-    width: '100%',
-    height: '100%',
+    // paddingBottom: 30,
   },
   taskContainer: {
     width: '100%',

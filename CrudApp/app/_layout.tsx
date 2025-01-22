@@ -30,7 +30,7 @@ export default function RootLayout() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 80, // Adjust height as per your needs
+    height: 90, 
     justifyContent: "flex-end",
     alignItems: "center",
     paddingBottom: 10,
