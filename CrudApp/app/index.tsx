@@ -1,9 +1,18 @@
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, Pressable } from "react-native";
 import data from '../data/data.json'
 import Octicons from '@expo/vector-icons/Octicons';
 import ButtomNew from "@/components/ButtomNew";
+import { useRouter } from 'expo-router';
 
 export default function Index() {
+
+
+  const router = useRouter();
+
+  const navigateToNewTaskScreen = () => {
+    router.push("/newTask");
+  } 
+
   return (
     <View
       style={styles.container}
@@ -24,7 +33,12 @@ export default function Index() {
           </View>
         )}
       />
-      <ButtomNew buttomColor="#9B87F5" buttomSize={62}/>
+      <Pressable 
+        style={styles.pressable}
+        onPress={navigateToNewTaskScreen}
+      >
+        <ButtomNew buttomColor="#9B87F5" buttomSize={62}/>
+      </Pressable>
     </View>
   )
 }
@@ -57,4 +71,9 @@ const styles = StyleSheet.create({
     color: '#3a3a3a',
     textDecorationColor: '#3a3a3a'
   },
+  pressable: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  }
 });

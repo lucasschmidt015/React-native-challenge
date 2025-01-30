@@ -21,9 +21,12 @@ function GradientHeader({ title }: GradientHeaderProps) {
 }
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ 
-    header: () => <GradientHeader title="My Tasks"/>
-  }} />;
+  return (
+    <Stack>
+      <Stack.Screen name="index" options={ { headerShown: true,  header: () => <GradientHeader title="My Tasks"/> } }  />
+      <Stack.Screen name="newTask" options={ { headerShown: true, header: () => <GradientHeader title="Create a Task"/> } }  />
+    </Stack>
+  );
 }
 
 
