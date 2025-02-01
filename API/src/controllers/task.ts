@@ -75,7 +75,7 @@ export const getTask = async (req: Request, res: Response) => {
  *          'taskMessage' is missing.
  */
 export const createTask = async (req: Request, res: Response) => {
-    const taskMessage: string = req.body.taskMessage;
+    const { taskMessage }: { taskMessage: string } = req.body;
 
     if (!taskMessage) {
         res.status(400).json({ message: 'Missing message' });
@@ -112,8 +112,7 @@ export const createTask = async (req: Request, res: Response) => {
  * @throws Returns a 400 status code if parameters are missing or if the update fails.
  */
 export const updateTask = async (req: Request, res: Response) => {
-    const taskId: number = req.body.taskId;
-    const newMessage: string = req.body.newMessage;
+    const { taskId, newMessage }: { taskId: number, newMessage: string } = req.body;
 
     if (!taskId || !newMessage) {
         res.status(400).json({ message: 'Missing parameters' });
