@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/tasks", getTasks);
 
-router.get("/task", getTask);
+router.get("/task/:id", getTask);
 
 router.post("/task", createTask);
 
