@@ -75,9 +75,9 @@ export const getTask = async (req: Request, res: Response) => {
  *          'taskMessage' is missing.
  */
 export const createTask = async (req: Request, res: Response) => {
-    const { taskMessage }: { taskMessage: string } = req.body;
+    const { message }: { message: string } = req.body;
 
-    if (!taskMessage) {
+    if (!message) {
         res.status(400).json({ message: 'Missing message' });
         return;
     }
@@ -85,7 +85,7 @@ export const createTask = async (req: Request, res: Response) => {
     try {
         const createdTask: Task = await prisma.task.create({
             data: {
-                message: taskMessage
+                message: message
             }
         });
 

@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Pressable } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+
+import { createNewTask } from '@/api/task';
 
 const NewTask = () => {
     const router = useRouter();
 
     const [task, editTask] = useState<string>('');
 
-    const onPressSave = () => {
-        
+    const onPressSave = async () => {
+        if (task.length < 1) {
+            Alert.alert("You need to type the task");
+            return;
+        }
+        try {
+            const response = await createNewTask({ message: task });
+            if (response.status === 201) {
+                router.push("/");
+                Alert.alert("Task successfully created");
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const onPressCancel = () => {
@@ -43,15 +57,6 @@ const NewTask = () => {
     );
 }
 
-const buttonsCommunStyles = {
-    width: 90,
-    height: 35,
-    marginLeft: 10,
-    justifyContent: 'center',        
-    alignItems: 'center',
-    borderRadius: 5,
-}
-
 const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 15,
@@ -77,11 +82,21 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     cancelButton: {
-        ...buttonsCommunStyles,
+        width: 90,
+        height: 35,
+        marginLeft: 10,
+        justifyContent: 'center',        
+        alignItems: 'center',
+        borderRadius: 5,
         backgroundColor: '#e70000',
     },
     saveButton: {
-        ...buttonsCommunStyles,
+        width: 90,
+        height: 35,
+        marginLeft: 10,
+        justifyContent: 'center',        
+        alignItems: 'center',
+        borderRadius: 5,
         backgroundColor: '#00a308',
     },
     buttonText: {
