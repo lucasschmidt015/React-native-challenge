@@ -8,6 +8,7 @@ datasource db {
 }
 
 model Task {
-  id Int @id @default(autoincrement())
+  id      Int    @id @default(autoincrement())
   message String @db.VarChar(100)
+  status  Int    @default(0)
 }

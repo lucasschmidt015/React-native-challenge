@@ -14,7 +14,11 @@ const prisma = new PrismaClient();
  */
 export const getTasks = async (req: Request, res: Response) => {
     try {
-        const tasks: Task[] = await prisma.task.findMany();
+        const tasks: Task[] = await prisma.task.findMany({
+            orderBy: {
+                id: 'asc'
+            }
+        });
 
         res.status(200).json(tasks);
 

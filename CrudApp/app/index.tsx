@@ -1,37 +1,82 @@
-import { Text, View, StyleSheet, FlatList, Pressable } from "react-native";
+import { Text, View, StyleSheet, FlatList, Pressable, Alert } from "react-native";
 import data from '../data/data.json'
 import Octicons from '@expo/vector-icons/Octicons';
 import ButtomNew from "@/components/ButtomNew";
 import { useRouter } from 'expo-router';
+import { useState, useEffect } from "react";
+import { listTasks } from "@/api/task";
+
+import { Task } from '@/types/task';
 
 export default function Index() {
 
-
   const router = useRouter();
+
+  const [tasks, setTasks] = useState<Task | []>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function loadTasks() {
+      try {
+        setLoading(true);
+        const response = await listTasks();
+        if (!response.data) {
+          throw new Error();
+        }
+        const data: Task = response.data.map(row => {
+          return {
+            id: row.id,
+            message: row.message,
+            status: row.status,  
+          };
+        });
+        setTasks(data);
+      } catch (error) {
+        Alert.alert("Failed to fetch the data");
+      }
+      finally {
+        setLoading(false);
+      }
+    }
+
+    loadTasks();
+  }, []);
 
   const navigateToNewTaskScreen = () => {
     router.push("/newTask");
   } 
+
+  if (loading) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View
       style={styles.container}
     >
       <FlatList 
-        data={data}
+        data={tasks}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         ListFooterComponent={<View style={{height: 20}}/>}
         renderItem={({item}) => (
           <View style={styles.taskContainer}>
-            {item.completed 
+            {item.status === 1
               ? <Octicons name="check-circle-fill" size={27} color="#9B87F5" style={{ marginRight: 15 }} /> 
               : <Octicons name="check-circle" size={27} color="#a3a3a4" style={{ marginRight: 15 }} />
             }
-            <Text style={{...styles.taskText, textDecorationLine: item.completed ? 'line-through' : 'none'}}>{item.title}</Text>
+            <Text style={{...styles.taskText, textDecorationLine: item.status === 1 ? 'line-through' : 'none'}}>{item.message}</Text>
           </View>
         )}
+        ListEmptyComponent={
+          <View style={styles.emptyComponent}>
+            <Text style={styles.taskText}>No tasks were found</Text>
+          </View>}
       />
       <Pressable 
         style={styles.pressable}
@@ -70,6 +115,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#3a3a3a',
     textDecorationColor: '#3a3a3a'
+  },
+  emptyComponent: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   pressable: {
     position: 'absolute',
