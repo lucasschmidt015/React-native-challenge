@@ -4,7 +4,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import ButtomNew from "@/components/ButtomNew";
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from "react";
-import { listTasks } from "@/api/task";
+import { listTasks, concludeTask } from "@/api/task";
 
 import { Task } from '@/types/task';
 
@@ -12,7 +12,7 @@ export default function Index() {
 
   const router = useRouter();
 
-  const [tasks, setTasks] = useState<Task | []>([]);
+  const [tasks, setTasks] = useState<Task[] | []>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -42,6 +42,29 @@ export default function Index() {
     loadTasks();
   }, []);
 
+  const onClickConcludeTask = async (taskId: number) => {
+    try {
+      const response = await concludeTask(taskId);
+
+      const concludedTask: Task = response.data;
+
+      if (!concludedTask) {
+        throw new Error();
+      }
+
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+            task.id === taskId ? { ...task, status: concludedTask.status || task.status } : task
+        )
+      );
+      
+      console.log('concludedTask: ', concludeTask);
+
+    } catch (error) {
+      Alert.alert('Failed to conclude the task');
+    }
+  }
+
   const navigateToNewTaskScreen = () => {
     router.push("/newTask");
   } 
@@ -68,7 +91,7 @@ export default function Index() {
           <View style={styles.taskContainer}>
             {item.status === 1
               ? <Octicons name="check-circle-fill" size={27} color="#9B87F5" style={{ marginRight: 15 }} /> 
-              : <Octicons name="check-circle" size={27} color="#a3a3a4" style={{ marginRight: 15 }} />
+              : <Octicons name="check-circle" size={27} color="#a3a3a4" style={{ marginRight: 15 }} onPress={() => onClickConcludeTask(item.id)}/>
             }
             <Text style={{...styles.taskText, textDecorationLine: item.status === 1 ? 'line-through' : 'none'}}>{item.message}</Text>
           </View>

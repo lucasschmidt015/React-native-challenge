@@ -14,5 +14,11 @@ export const createNewTask = async (data: Task) => {
 }
 
 export const listTasks = async () => {
-    return await api.get('/tasks');;
+    return await api.get('/tasks');
+}
+
+export const concludeTask = async (taskId: number) => {
+    return await api.put('/task/conclude',  {
+        taskId
+    });
 }

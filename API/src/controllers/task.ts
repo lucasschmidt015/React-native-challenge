@@ -15,14 +15,16 @@ const prisma = new PrismaClient();
 export const getTasks = async (req: Request, res: Response) => {
     try {
         const tasks: Task[] = await prisma.task.findMany({
-            orderBy: {
-                id: 'asc'
-            }
+            orderBy: [
+                { status: 'asc' },
+                { id: 'asc' }
+            ]
         });
 
         res.status(200).json(tasks);
 
     } catch (err)  {
+        console.log(err)
         res.status(400).json({ message: "Failed to fetch all tasks" });
     }
 };
@@ -145,6 +147,36 @@ export const updateTask = async (req: Request, res: Response) => {
     }
 
 };
+
+export const concludeTask = async (req: Request, res: Response) => {
+    const { taskId }: { taskId: number } = req.body;
+
+    if (!taskId) {
+        res.status(400).json({ message: 'Missing taskId' });
+        return;
+    }
+
+    try {
+        const updatedTask = await prisma.task.update({
+            where: {
+                id: taskId,
+            },
+            data: {
+                status: 1
+            }
+        });
+
+        res.status(200).json(updatedTask);
+
+    } catch (err: any) {
+        if (err.code === 'P2025') { // Prisma's error for record not found
+            res.status(404).json({ message: 'Task not found' });
+            return;
+        }
+
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 /**
  * Deletes a task based on the provided task ID from the request body.
