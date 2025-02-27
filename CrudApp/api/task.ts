@@ -13,9 +13,9 @@ export const createNewTask = async (data: Task) => {
     return await api.post('/task', data);
 }
 
-export const listTasks = async () => {
-    return await api.get('/tasks');
-}
+export const listTasks = async (page: number = 1, limit: number = 10) => {
+    return await api.get(`/tasks?page=${page}&limit=${limit}`);
+};
 
 export const concludeTask = async (taskId: number) => {
     return await api.put('/task/conclude',  {

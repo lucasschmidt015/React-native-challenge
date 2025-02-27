@@ -14,14 +14,28 @@ const prisma = new PrismaClient();
  */
 export const getTasks = async (req: Request, res: Response) => {
     try {
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
         const tasks: Task[] = await prisma.task.findMany({
             orderBy: [
                 { status: 'asc' },
                 { id: 'asc' }
-            ]
+            ],
+            skip,
+            take: limit
         });
 
-        res.status(200).json(tasks);
+        const totalTasks = await prisma.task.count();
+
+        res.status(200).json({
+            tasks,
+            totalPages: Math.ceil(totalTasks / limit),
+            currentPage: page,
+            hasMore: skip + limit < totalTasks
+        });
 
     } catch (err)  {
         console.log(err)

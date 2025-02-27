@@ -14,33 +14,48 @@ export default function Index() {
 
   const [tasks, setTasks] = useState<Task[] | []>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
-  useEffect(() => {
-    async function loadTasks() {
-      try {
-        setLoading(true);
-        const response = await listTasks();
-        if (!response.data) {
-          throw new Error();
-        }
-        const data: Task = response.data.map(row => {
-          return {
-            id: row.id,
-            message: row.message,
-            status: row.status,  
-          };
-        });
-        setTasks(data);
-      } catch (error) {
-        Alert.alert("Failed to fetch the data");
-      }
-      finally {
-        setLoading(false);
-      }
+  const loadTasks = async () => {
+    if (!hasMore) {
+      return;
     }
 
+    try {
+      setLoading(true);
+      const response = await listTasks(page);
+      if (!response.data || response.data.tasks.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      const data: Task = response.data.tasks.map(row => {
+        return {
+          id: row.id,
+          message: row.message,
+          status: row.status,  
+        };
+      });
+      setPage(page + 1);  
+      setTasks(prevTasks => [...prevTasks, ...data]);
+    } catch (error) {
+      Alert.alert("Failed to fetch the data");
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     loadTasks();
   }, []);
+
+  const loadMoreTasks = () => {
+    if (tasks.length && !loading) {
+      loadTasks();
+    }
+  }
 
   const onClickConcludeTask = async (taskId: number) => {
     try {
@@ -57,9 +72,6 @@ export default function Index() {
             task.id === taskId ? { ...task, status: concludedTask.status || task.status } : task
         )
       );
-      
-      console.log('concludedTask: ', concludeTask);
-
     } catch (error) {
       Alert.alert('Failed to conclude the task');
     }
@@ -87,6 +99,8 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         ListFooterComponent={<View style={{height: 20}}/>}
+        onEndReached={loadMoreTasks}
+        onEndReachedThreshold={0.2}
         renderItem={({item}) => (
           <View style={styles.taskContainer}>
             {item.status === 1
@@ -99,7 +113,14 @@ export default function Index() {
         ListEmptyComponent={
           <View style={styles.emptyComponent}>
             <Text style={styles.taskText}>No tasks were found</Text>
-          </View>}
+          </View>
+        }
+        getItemLayout={(data, index) => ({
+          length: 70,
+          offset: 70 * index,
+          index,
+        })}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
       />
       <Pressable 
         style={styles.pressable}
