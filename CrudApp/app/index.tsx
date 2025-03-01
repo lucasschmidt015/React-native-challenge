@@ -1,9 +1,8 @@
 import { Text, View, StyleSheet, FlatList, Pressable, Alert } from "react-native";
-import data from '../data/data.json'
 import Octicons from '@expo/vector-icons/Octicons';
 import ButtomNew from "@/components/ButtomNew";
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { listTasks, concludeTask } from "@/api/task";
 
 import { Task } from '@/types/task';
@@ -15,7 +14,10 @@ export default function Index() {
   const [tasks, setTasks] = useState<Task[] | []>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
+  const [scrollY, setScrollY] = useState(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const flatListRef =  useRef<FlatList>(null);
 
   const loadTasks = async () => {
     if (!hasMore) {
@@ -81,6 +83,16 @@ export default function Index() {
     router.push("/newTask");
   } 
 
+  const onScroll = (event: any) => {
+    setScrollY(event.nativeEvent.contentOffset.y);
+  };
+
+  useEffect(() => {
+    if (flatListRef.current && scrollY !== 0) {
+      flatListRef.current.scrollToOffset({ offset: scrollY, animated: false });
+    }
+  }, [tasks]);
+
   if (loading) {
     return (
       <View>
@@ -94,13 +106,15 @@ export default function Index() {
       style={styles.container}
     >
       <FlatList 
+        ref={flatListRef}
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         ListFooterComponent={<View style={{height: 20}}/>}
         onEndReached={loadMoreTasks}
-        onEndReachedThreshold={0.2}
+        onEndReachedThreshold={0.1}
+        onScroll={onScroll}
         renderItem={({item}) => (
           <View style={styles.taskContainer}>
             {item.status === 1
@@ -140,7 +154,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   listContainer: {
-    // paddingBottom: 30,
+    paddingVertical: 20, 
+    paddingHorizontal: 10,
+    
   },
   taskContainer: {
     width: '100%',

@@ -13,7 +13,7 @@ export const createNewTask = async (data: Task) => {
     return await api.post('/task', data);
 }
 
-export const listTasks = async (page: number = 1, limit: number = 10) => {
+export const listTasks = async (page: number = 1, limit: number = 20) => {
     return await api.get(`/tasks?page=${page}&limit=${limit}`);
 };
 
